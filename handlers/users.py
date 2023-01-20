@@ -75,6 +75,7 @@ async def enter_days_count(call: CallbackQuery, state: FSMContext):
     await call.message.answer(texts.finish)
 
     user_data = await state.get_data()
+    await state.finish()
     user_data["phone"] = db.get_user(call.from_user.id)["phone"]
     await crm.create_lead(user_data)
     await call.message.answer_document(doc_id)
