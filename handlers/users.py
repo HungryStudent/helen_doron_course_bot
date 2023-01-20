@@ -1,18 +1,11 @@
-from enum import Enum
-
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Text
 from aiogram.types import Message, CallbackQuery
-from aiogram import Dispatcher
-from aiogram.utils.exceptions import BotKicked
 
 from config import doc_id
 from handlers import texts
-from create_bot import dp, log
-from datetime import date, timedelta
-import keyboards.admin as admin_kb
+from create_bot import dp
 import keyboards.user as user_kb
-from utils import db
+from utils import db, crm
 from states import user as states
 
 
@@ -25,7 +18,8 @@ async def func(message: Message):
 async def start_message(message: Message):
     user = db.get_user(message.from_user.id)
     if user is None:
-        db.add_user(message.from_user.id, message.from_user.username, message.from_user.first_name)
+        phone = message.get_args()
+        db.add_user(message.from_user.id, message.from_user.username, message.from_user.first_name, phone)
     await message.answer(texts.hello_text)
     await message.answer(texts.enter_age)
     await states.CreateLead.enter_age.set()
@@ -51,7 +45,6 @@ async def enter_days(call: CallbackQuery, state: FSMContext, callback_data: dict
     weekday = int(callback_data["weekday"])
     is_include = int(callback_data["is_include"])
     async with state.proxy() as data:
-        print(data["days_data"])
         data["days_data"][weekday] = abs(is_include - 1)
         await call.message.edit_reply_markup(user_kb.get_days(data["days_data"]))
 
@@ -82,6 +75,6 @@ async def enter_days_count(call: CallbackQuery, state: FSMContext):
     await call.message.answer(texts.finish)
 
     user_data = await state.get_data()
-
+    user_data["phone"] = db.get_user(call.from_user.id)["phone"]
+    await crm.create_lead(user_data)
     await call.message.answer_document(doc_id)
-
