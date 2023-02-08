@@ -22,7 +22,6 @@ days_count = InlineKeyboardMarkup(row_width=1).add(InlineKeyboardButton("1", cal
 
 def get_days(days_info):
     kb = InlineKeyboardMarkup(row_width=1)
-    print(days_info)
     for i in range(7):
         kb.add(InlineKeyboardButton(weekdays[i][days_info[i]],
                                     callback_data=days_data.new(i, days_info[i])))
