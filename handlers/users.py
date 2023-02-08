@@ -77,8 +77,10 @@ async def enter_days_count(call: CallbackQuery, state: FSMContext):
     user_data = await state.get_data()
     await state.finish()
     user_data["phone"] = db.get_user(call.from_user.id)["phone"]
-    if user_data["phone"] == "" and call.from_user.username:
-        user_data["phone"] = call.from_user.username
-    else:
-        user_data["phone"] = 89000000000
+    if user_data["phone"] == "":
+        if not call.from_user.username:
+            user_data["phone"] = "89000000000"
+        else:
+            user_data["phone"] = call.from_user.username
+
     await crm.create_lead(user_data)

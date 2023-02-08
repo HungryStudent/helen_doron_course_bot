@@ -22,6 +22,7 @@ async def create_lead(user_data):
 Дни: {days}
 Время: {user_data['time']}
 Кол-во дней: {user_data['days_count']}"""
+        print(type(user_data["phone"]))
         async with session.post('https://geniusekb.s20.online/v2api/1/customer/create',
                                 headers={'X-ALFACRM-TOKEN': api_token,
                                          'Content-Type': 'application/json'},
@@ -33,3 +34,4 @@ async def create_lead(user_data):
                                       "note": note
                                       }) as resp:
             response = await resp.json()
+            print(response)
